@@ -39,8 +39,8 @@ func main() {
 
 	r := gin.Default()
 
-	r.POST("/register", handlers.Register)
-	r.POST("/login", handlers.Login)
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
 
 	auth := r.Group("/")
 	auth.Use(middleware.AuthMiddleware())
@@ -50,6 +50,9 @@ func main() {
 		auth.PUT("/password", handlers.ChangePassword)
 		auth.POST("/logout", handlers.Logout)
 	}
+
+	r.POST("/register", handlers.Register)
+	r.POST("/login", handlers.Login)
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
