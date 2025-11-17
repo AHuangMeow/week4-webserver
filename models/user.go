@@ -1,13 +1,9 @@
 package models
 
-import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
-
 type User struct {
-	Username primitive.ObjectID `bson:"username" json:"username"`
-	Nickname string             `bson:"nickname" json:"nickname"`
-	Password string             `bson:"password" json:"-"`
+	Username string `bson:"username" json:"username"`
+	Nickname string `bson:"nickname" json:"nickname"`
+	Password string `bson:"password" json:"-"`
 }
 
 type RegisterRequest struct {

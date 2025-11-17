@@ -54,6 +54,6 @@ func main() {
 	r.POST("/register", handlers.Register)
 	r.POST("/login", handlers.Login)
 
-	log.Println("Server running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Println("Server running on ", port)
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
