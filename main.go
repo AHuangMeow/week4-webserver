@@ -3,15 +3,39 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"week4-webserver/database"
 	"week4-webserver/handlers"
 	"week4-webserver/middleware"
 )
 
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No .env file found, using system environment variables")
+	}
+}
+
 func main() {
-	database.InitMongoDB("mongodb://localhost:27017", "userdb")
+	mongodbURI := os.Getenv("MONGODB_URI")
+	if mongodbURI == "" {
+		mongodbURI = "mongodb://localhost:27017"
+	}
+
+	dbName := os.Getenv("DATABASE_NAME")
+	if dbName == "" {
+		dbName = "userdb"
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	database.InitMongoDB(mongodbURI, "userdb")
 
 	r := gin.Default()
 
