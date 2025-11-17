@@ -12,22 +12,14 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code":    401,
-				"message": "Authorization header is required",
-				"data":    nil,
-			})
+			utils.Unauthorized(c, "Authorization header is required")
 			c.Abort()
 			return
 		}
 
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code":    401,
-				"message": "Authorization header format must be 'Bearer {token}'",
-				"data":    nil,
-			})
+			utils.Unauthorized(c, "Authorization header format must be 'Bearer {token}'")
 			c.Abort()
 			return
 		}
@@ -50,29 +42,13 @@ func AuthMiddleware() gin.HandlerFunc {
 func handleTokenError(c *gin.Context, err error) {
 	switch err {
 	case utils.ErrTokenExpired:
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":    401,
-			"message": "Token has expired",
-			"data":    nil,
-		})
+		utils.Unauthorized(c, "Token has expired")
 	case utils.ErrTokenInvalid, utils.ErrTokenMalformed:
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":    401,
-			"message": "Invalid token",
-			"data":    nil,
-		})
+		utils.Unauthorized(c, "Invalid token")
 	case utils.ErrTokenNotValidYet:
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":    401,
-			"message": "Token not active yet",
-			"data":    nil,
-		})
+		utils.Unauthorized(c, "Token not active yet")
 	default:
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":    401,
-			"message": "Authentication failed",
-			"data":    nil,
-		})
+		utils.Unauthorized(c, "Authentication failed")
 	}
 	c.Abort()
 }
