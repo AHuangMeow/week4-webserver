@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -17,6 +18,8 @@ var (
 )
 
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+
+var tokenBlackList = NewRedisBlacklist()
 
 type Claims struct {
 	Username string `json:"username"`
@@ -54,6 +57,14 @@ func ParseToken(tokenString string) (*Claims, error) {
 		return nil, errors.New("token string is empty")
 	}
 
+	isBlacklisted, err := tokenBlackList.IsTokenBlacklisted(tokenString)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check token blacklist: %v", err)
+	}
+	if isBlacklisted {
+		return nil, ErrTokenInvalid
+	}
+
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
@@ -70,6 +81,31 @@ func ParseToken(tokenString string) (*Claims, error) {
 	}
 
 	return nil, ErrTokenInvalid
+}
+
+func InvalidateToken(tokenString string) error {
+	if tokenString == "" {
+		return errors.New("token string is empty")
+	}
+
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (any, error) {
+		return jwtSecret, nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		expireTime := time.Unix(claims.ExpiresAt, 0)
+		err := tokenBlackList.AddToken(tokenString, expireTime)
+		if err != nil {
+			return fmt.Errorf("failed to invalidate token: %v", err)
+		}
+		return nil
+	}
+
+	return ErrTokenInvalid
 }
 
 func parseJWTError(err error) error {

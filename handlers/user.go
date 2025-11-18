@@ -27,7 +27,7 @@ func Register(c *gin.Context) {
 	}
 
 	if len(req.Password) < 8 {
-		utils.BadRequest(c, "Password must be at least 6 characters")
+		utils.BadRequest(c, "Password must be at least 8 characters")
 		return
 	}
 
@@ -258,6 +258,6 @@ func ChangePassword(c *gin.Context) {
 
 func Logout(c *gin.Context) {
 	utils.Success(c, gin.H{
-		"message": "Logout successful",
+		"message": "Logout succeed",
 	})
 }
