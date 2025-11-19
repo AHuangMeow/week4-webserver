@@ -79,29 +79,3 @@ func GetTokenFromContext(c *gin.Context) (string, bool) {
 
 	return strToken, true
 }
-
-func OptionalAuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.Next()
-			return
-		}
-
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.Next()
-			return
-		}
-
-		tokenString := parts[1]
-
-		claims, err := utils.ParseToken(tokenString)
-		if err == nil {
-			c.Set("username", claims.Username)
-			c.Set("token", tokenString)
-		}
-
-		c.Next()
-	}
-}

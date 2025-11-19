@@ -128,11 +128,3 @@ func ValidateToken(tokenString string) bool {
 	_, err := ParseToken(tokenString)
 	return err == nil
 }
-
-func GetUserIDFromToken(tokenString string) (string, error) {
-	claims, err := ParseToken(tokenString)
-	if err != nil {
-		return "", err
-	}
-	return claims.Username, nil
-}
