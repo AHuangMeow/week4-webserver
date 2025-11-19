@@ -4,13 +4,14 @@ import (
 	"context"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"week4-webserver/database"
 	"week4-webserver/middleware"
 	"week4-webserver/models"
 	"week4-webserver/utils"
+
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func Register(c *gin.Context) {
@@ -151,6 +152,11 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
+	token, exists := middleware.GetTokenFromContext(c)
+	if exists {
+		utils.InvalidateToken(token)
+	}
+
 	var req models.UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "Invalid request data")
@@ -205,6 +211,11 @@ func ChangePassword(c *gin.Context) {
 		return
 	}
 
+	token, exists := middleware.GetTokenFromContext(c)
+	if exists {
+		utils.InvalidateToken(token)
+	}
+
 	var req models.ChangePasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "Invalid request data")
@@ -257,7 +268,24 @@ func ChangePassword(c *gin.Context) {
 }
 
 func Logout(c *gin.Context) {
+	token, exists := middleware.GetTokenFromContext(c)
+	if !exists {
+		utils.Success(c, gin.H{
+			"message": "Logout succeed",
+		})
+		return
+	}
+
+	err := utils.InvalidateToken(token)
+	if err != nil {
+		utils.Success(c, gin.H{
+			"message": "Logout succeed",
+			"warning": "Token may still be valid for a short time",
+		})
+		return
+	}
+
 	utils.Success(c, gin.H{
-		"message": "Logout succeed",
+		"message": "Logout succeed, token has been invalidated",
 	})
 }
