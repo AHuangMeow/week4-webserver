@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -99,5 +98,5 @@ func main() {
 	}
 
 	log.Println("Server running on ", port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	log.Fatal(r.RunTLS(":"+port, "certificates/cert.pem", "certificates/key.pem"))
 }
