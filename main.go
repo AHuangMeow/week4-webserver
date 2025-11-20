@@ -10,8 +10,33 @@ import (
 	"week4-webserver/database"
 	"week4-webserver/handlers"
 	"week4-webserver/middleware"
+
+	_ "week4-webserver/docs"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title User Management API
+// @version 1.0
+// @description This is a user management server with JWT authentication
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /
+// @schemes http
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description JWT Authorization header using the Bearer scheme. Example: "Bearer {token}"
 func init() {
 	err := godotenv.Load()
 	if err != nil {
@@ -19,6 +44,9 @@ func init() {
 	}
 }
 
+// main function
+// @Summary Health check endpoint
+// @Description Main function that starts the server
 func main() {
 	mongodbURI := os.Getenv("MONGODB_URI")
 	if mongodbURI == "" {
@@ -49,6 +77,8 @@ func main() {
 
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.POST("/register", handlers.Register)
 	r.POST("/login", handlers.Login)

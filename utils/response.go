@@ -5,8 +5,8 @@ import "github.com/gin-gonic/gin"
 // Response General response structure
 // @Description General API response structure
 type Response struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    int    `json:"code" example:"200"`
+	Message string `json:"message" example:"success"`
 	Data    any    `json:"data"`
 }
 
@@ -28,18 +28,23 @@ func Error(c *gin.Context, code int, message string) {
 	})
 }
 
+// BadRequest returns 400 error
 func BadRequest(c *gin.Context, message string) {
 	Error(c, 400, message)
 }
 
+// Unauthorized returns 401 error
 func Unauthorized(c *gin.Context, message string) {
 	Error(c, 401, message)
 }
 
+// NotFound returns 404 error
 func NotFound(c *gin.Context, message string) {
 	Error(c, 404, message)
 }
 
+// InternalError returns 500 error
 func InternalError(c *gin.Context, message string) {
 	Error(c, 500, message)
 }
+

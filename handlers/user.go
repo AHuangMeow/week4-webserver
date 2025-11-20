@@ -14,6 +14,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// Register godoc
+// @Summary Register a new user
+// @Description Create a new user account
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Param request body models.RegisterRequest true "Register request"
+// @Success 200 {object} utils.Response "User registered successfully"
+// @Failure 400 {object} utils.Response "Invalid request data"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /register [post]
 func Register(c *gin.Context) {
 	var req models.RegisterRequest
 
@@ -70,6 +81,18 @@ func Register(c *gin.Context) {
 	})
 }
 
+// Login godoc
+// @Summary User login
+// @Description Authenticate user and return JWT token
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Param request body models.LoginRequest true "Login request"
+// @Success 200 {object} utils.Response "Login successful"
+// @Failure 400 {object} utils.Response "Invalid request data"
+// @Failure 401 {object} utils.Response "Invalid credentials"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /login [post]
 func Login(c *gin.Context) {
 	var req models.LoginRequest
 
@@ -118,6 +141,18 @@ func Login(c *gin.Context) {
 	})
 }
 
+// GetUser godoc
+// @Summary Get user profile
+// @Description Get current user's profile information
+// @Tags user
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} utils.Response "User data retrieved successfully"
+// @Failure 401 {object} utils.Response "Unauthorized"
+// @Failure 404 {object} utils.Response "User not found"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /user [get]
 func GetUser(c *gin.Context) {
 	username, exists := middleware.GetUsernameFromContext(c)
 	if !exists {
@@ -145,6 +180,19 @@ func GetUser(c *gin.Context) {
 	})
 }
 
+// UpdateUser godoc
+// @Summary Update user profile
+// @Description Update username or nickname
+// @Tags user
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.UpdateUserRequest true "Update user request"
+// @Success 200 {object} utils.Response "User updated successfully"
+// @Failure 400 {object} utils.Response "Invalid request data"
+// @Failure 401 {object} utils.Response "Unauthorized"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /user [put]
 func UpdateUser(c *gin.Context) {
 	username, exists := middleware.GetUsernameFromContext(c)
 	if !exists {
@@ -204,6 +252,19 @@ func UpdateUser(c *gin.Context) {
 	})
 }
 
+// ChangePassword godoc
+// @Summary Change user password
+// @Description Change current user's password
+// @Tags user
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.ChangePasswordRequest true "Change password request"
+// @Success 200 {object} utils.Response "Password updated successfully"
+// @Failure 400 {object} utils.Response "Invalid request data"
+// @Failure 401 {object} utils.Response "Unauthorized"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /password [put]
 func ChangePassword(c *gin.Context) {
 	username, exists := middleware.GetUsernameFromContext(c)
 	if !exists {
@@ -267,6 +328,15 @@ func ChangePassword(c *gin.Context) {
 	})
 }
 
+// Logout godoc
+// @Summary User logout
+// @Description Logout user and invalidate token
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} utils.Response "Logout successful"
+// @Router /logout [post]
 func Logout(c *gin.Context) {
 	token, exists := middleware.GetTokenFromContext(c)
 	if !exists {
@@ -290,6 +360,14 @@ func Logout(c *gin.Context) {
 	})
 }
 
+// HealthCheck godoc
+// @Summary Health check
+// @Description Check if server is running
+// @Tags system
+// @Accept json
+// @Produce json
+// @Success 200 {object} utils.Response "Server is healthy"
+// @Router /health [get]
 func HealthCheck(c *gin.Context) {
 	utils.Success(c, gin.H{
 		"status": "ok",
