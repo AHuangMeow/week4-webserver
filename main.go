@@ -52,6 +52,7 @@ func main() {
 
 	r.POST("/register", handlers.Register)
 	r.POST("/login", handlers.Login)
+	r.GET("/health", handlers.HealthCheck)
 
 	auth := r.Group("/")
 	auth.Use(middleware.AuthMiddleware())

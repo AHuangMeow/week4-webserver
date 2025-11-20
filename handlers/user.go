@@ -289,3 +289,10 @@ func Logout(c *gin.Context) {
 		"message": "Logout succeed, token has been invalidated",
 	})
 }
+
+func HealthCheck(c *gin.Context) {
+	utils.Success(c, gin.H{
+		"status": "ok",
+		"data":   "Server is running",
+	})
+}
