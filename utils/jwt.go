@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 var (
@@ -23,7 +23,7 @@ var tokenBlackList = NewRedisBlacklist()
 
 type Claims struct {
 	Username string `json:"username"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 func GenerateToken(username string) (string, error) {
@@ -31,12 +31,13 @@ func GenerateToken(username string) (string, error) {
 		return "", errors.New("userID cannot be empty")
 	}
 
-	expireTime := time.Now().Add(24 * time.Hour)
+	now := time.Now()
+	expireTime := now.Add(24 * time.Hour)
 	claims := Claims{
 		Username: username,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expireTime.Unix(),
-			IssuedAt:  time.Now().Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expireTime),
+			IssuedAt:  jwt.NewNumericDate(now),
 			Issuer:    "user-backend",
 			Subject:   username,
 		},
@@ -97,7 +98,12 @@ func InvalidateToken(tokenString string) error {
 	}
 
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
-		expireTime := time.Unix(claims.ExpiresAt, 0)
+		var expireTime time.Time
+		if claims.ExpiresAt != nil {
+			expireTime = claims.ExpiresAt.Time
+		} else {
+			expireTime = time.Now().Add(24 * time.Hour)
+		}
 		err := tokenBlackList.AddToken(tokenString, expireTime)
 		if err != nil {
 			return fmt.Errorf("failed to invalidate token: %v", err)
